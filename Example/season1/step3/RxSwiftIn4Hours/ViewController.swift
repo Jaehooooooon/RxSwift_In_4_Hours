@@ -57,7 +57,9 @@ class ViewController: UIViewController {
     
     private func bindOutput() {
         //output
-        idValid.subscribe(onNext: { b in self.idValidView.isHidden = b })
+        idValid
+            .observeOn(MainScheduler.instance)  // UI관련은 Main으로 돌려주는 게 좋음
+            .subscribe(onNext: { b in self.idValidView.isHidden = b })
             .disposed(by: disposeBag)
 
         pwValid.subscribe(onNext: { b in self.pwValidView.isHidden = b })
