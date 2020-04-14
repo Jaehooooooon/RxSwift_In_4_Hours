@@ -36,7 +36,7 @@ class ViewController: UITableViewController {
     }
 
     @IBAction func exFrom1() {
-        Observable.from(["RxSwift", "In", "4", "Hours"])
+        Observable.from(["RxSwift", "In", "4", "Hours"])    // 아이템 하나씩 내려감
             .subscribe(onNext: { str in
                 print(str)
             })
@@ -53,7 +53,7 @@ class ViewController: UITableViewController {
     }
 
     @IBAction func exMap2() {
-        Observable.from(["with", "곰튀김"])
+        Observable.from(["with", "곰튀김"])    // stream
             .map { $0.count }
             .subscribe(onNext: { str in
                 print(str)
@@ -72,13 +72,16 @@ class ViewController: UITableViewController {
 
     @IBAction func exMap3() {
         Observable.just("800x600")
-            .map { $0.replacingOccurrences(of: "x", with: "/") }
-            .map { "https://picsum.photos/\($0)/?random" }
-            .map { URL(string: $0) }
-            .filter { $0 != nil }
-            .map { $0! }
-            .map { try Data(contentsOf: $0) }
-            .map { UIImage(data: $0) }
+            .observeOn(ConcurrentDispatchQueueScheduler(qos: .default)) // 이 다음 줄 부터 영향
+            //.subscribeOn(ConcurrentDispatchQueueScheduler(qos: .default)) // 처음부터 .subscribe 까지 영향
+            .map { $0.replacingOccurrences(of: "x", with: "/") }    // "800/600"
+            .map { "https://picsum.photos/\($0)/?random" }  // "https://picsum.photos/800/600/?random"
+            .map { URL(string: $0) }    // URL
+            .filter { $0 != nil }   // nil 검사
+            .map { $0! }    // 강제 언래핑
+            .map { try Data(contentsOf: $0) }   // data
+            .map { UIImage(data: $0) }  // UIImage?
+            .observeOn(MainScheduler.instance)  // 메인 스케줄러에서 돌리기
             .subscribe(onNext: { image in
                 self.imageView.image = image
             })
