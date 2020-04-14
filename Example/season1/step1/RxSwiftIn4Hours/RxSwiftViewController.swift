@@ -13,7 +13,7 @@ class RxSwiftViewController: UIViewController {
     // MARK: - Field
 
     var counter: Int = 0
-    var disposable: Disposable?
+    var disposeBag: DisposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,7 @@ class RxSwiftViewController: UIViewController {
     @IBAction func onLoadImage(_ sender: Any) {
         imageView.image = nil
 
-        disposable = rxswiftLoadImage(from: LARGER_IMAGE_URL)
+        rxswiftLoadImage(from: LARGER_IMAGE_URL)
             .observeOn(MainScheduler.instance)
             .subscribe({ result in
                 switch result {
@@ -47,11 +47,14 @@ class RxSwiftViewController: UIViewController {
                     break
                 }
             })
+        .disposed(by: disposeBag)   // disposable 로 리턴 받지 않고 바로 가방에 담기
+//        disposeBag.insert(disposable)
     }
 
     @IBAction func onCancel(_ sender: Any) {
         // TODO: cancel image loading
-        disposable?.dispose()   //async 작업 한 번에 취소시켜 버리기
+//        disposable?.dispose()   // async 작업 한 번에 취소시켜 버리기
+        disposeBag = DisposeBag() // disposable들을 가방에 담아서 비워버리기 == 전부 한 번에 취소시켜 버리기
     }
 
     // MARK: - RxSwift
