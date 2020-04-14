@@ -13,6 +13,7 @@ class RxSwiftViewController: UIViewController {
     // MARK: - Field
 
     var counter: Int = 0
+    var disposable: Disposable?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +33,7 @@ class RxSwiftViewController: UIViewController {
     @IBAction func onLoadImage(_ sender: Any) {
         imageView.image = nil
 
-        _ = rxswiftLoadImage(from: LARGER_IMAGE_URL)
+        disposable = rxswiftLoadImage(from: LARGER_IMAGE_URL)
             .observeOn(MainScheduler.instance)
             .subscribe({ result in
                 switch result {
@@ -50,6 +51,7 @@ class RxSwiftViewController: UIViewController {
 
     @IBAction func onCancel(_ sender: Any) {
         // TODO: cancel image loading
+        disposable?.dispose()   //async 작업 한 번에 취소시켜 버리기
     }
 
     // MARK: - RxSwift
