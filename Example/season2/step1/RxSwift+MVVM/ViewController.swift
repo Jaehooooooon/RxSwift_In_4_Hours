@@ -15,6 +15,8 @@ let MEMBER_LIST_URL = "https://my.api.mockaroo.com/members_with_avatar.json?key=
 class ViewController: UIViewController {
     @IBOutlet var timerLabel: UILabel!
     @IBOutlet var editView: UITextView!
+    
+    var disposeBag = DisposeBag()   // 멤버 변수라서 vc가 날아가면 알아서 없어짐
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,21 +57,6 @@ class ViewController: UIViewController {
                 task.cancel()
             }
         }
-        
-//        return Observable.create { f in
-//            DispatchQueue.global().async {
-//                let url = URL(string: MEMBER_LIST_URL)!
-//                let data = try! Data(contentsOf: url)
-//                let json = String(data: data, encoding: .utf8)
-//
-//                DispatchQueue.main.async {
-//                    f.onNext(json)
-//                    f.onCompleted() // closure 종료 - 순환참조 문제 해결
-//                }
-//            }
-//
-//            return Disposables.create()
-//        }
     }
 
     // MARK: SYNC
@@ -88,5 +75,6 @@ class ViewController: UIViewController {
                 self.editView.text = json
                 self.setVisibleWithAnimation(self.activityIndicator, false)
             })
+            .disposed(by: disposeBag)
     }
 }
