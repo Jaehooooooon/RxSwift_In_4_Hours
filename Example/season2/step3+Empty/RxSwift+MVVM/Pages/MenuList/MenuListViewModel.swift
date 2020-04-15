@@ -30,6 +30,10 @@ class MenuListViewModel {
         menuObservable.onNext(menus)
     }
     
+    func onOrder() {
+        
+    }
+    
     func clearAllItemSelections() {
         _ = menuObservable
             .map { menus in
@@ -51,7 +55,7 @@ class MenuListViewModel {
                         return Menu(id: m.id,
                                     name: m.name,
                                     price: m.price,
-                                    count: m.count + increase)
+                                    count: max(m.count + increase, 0))
                     } else {
                         return m
                     }

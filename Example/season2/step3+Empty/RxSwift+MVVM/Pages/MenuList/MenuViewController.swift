@@ -79,9 +79,7 @@ class MenuViewController: UIViewController {
         // showAlert("Order Fail", "No Orders")
 //        performSegue(withIdentifier: "OrderViewController", sender: nil)
         
-        viewModel.menuObservable.onNext([
-            Menu(id: 0, name: "change", price: 1000, count: 1)
-        ])
+        viewModel.onOrder()
     }
     
 }
