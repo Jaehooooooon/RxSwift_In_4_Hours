@@ -34,19 +34,42 @@ class ViewController: UIViewController {
     
     // @escaping 은 downloadJson이 끝나도 closure가 실행될 수 있게 OR closure가 옵셔널타입이라면 필요없음 (@escaping이 default)
     func downloadJson(_ url: String) -> Observable<String?> {
-        return Observable.create { f in
-            DispatchQueue.global().async {
-                let url = URL(string: MEMBER_LIST_URL)!
-                let data = try! Data(contentsOf: url)
-                let json = String(data: data, encoding: .utf8)
-                
-                DispatchQueue.main.async {
-                    f.onNext(json)
+        return Observable.create() { emitter in
+            let url = URL(string: url)!
+            let task = URLSession.shared.dataTask(with: url) { ( data, _, err) in
+                guard err == nil else {
+                    emitter.onError(err!)
+                    return
                 }
+                
+                if let data = data, let json = String(data: data, encoding: .utf8) {
+                    emitter.onNext(json)
+                }
+                
+                emitter.onCompleted()
             }
             
-            return Disposables.create()
+            task.resume()
+            
+            return Disposables.create() {
+                task.cancel()
+            }
         }
+        
+//        return Observable.create { f in
+//            DispatchQueue.global().async {
+//                let url = URL(string: MEMBER_LIST_URL)!
+//                let data = try! Data(contentsOf: url)
+//                let json = String(data: data, encoding: .utf8)
+//
+//                DispatchQueue.main.async {
+//                    f.onNext(json)
+//                    f.onCompleted() // closure 종료 - 순환참조 문제 해결
+//                }
+//            }
+//
+//            return Disposables.create()
+//        }
     }
 
     // MARK: SYNC
@@ -56,14 +79,17 @@ class ViewController: UIViewController {
     @IBAction func onLoad() {
         editView.text = ""
         setVisibleWithAnimation(activityIndicator, true)
-
-        downloadJson(MEMBER_LIST_URL)
+ 
+        // 2. Observable로 오는 데이터 처리하는 방법
+        let disposable = downloadJson(MEMBER_LIST_URL)
             .subscribe { event in
                 switch event {
                 case .next(let json) :
-                    self.editView.text = json
-                    self.setVisibleWithAnimation(self.activityIndicator, false)
-                    
+                    DispatchQueue.main.async {
+                        self.editView.text = json
+                        self.setVisibleWithAnimation(self.activityIndicator, false)
+                    }
+
                 case .completed:
                     break
                 case .error(_):
