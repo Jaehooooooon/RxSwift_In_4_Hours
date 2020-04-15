@@ -38,14 +38,15 @@ class MenuViewController: UIViewController {
         
         viewModel.itemsCount
             .map { "\($0)"}
+            .catchErrorJustReturn("")   // UI 에서 error 처리
             .observeOn(MainScheduler.instance)
             .bind(to: itemCountLabel.rx.text)
             .disposed(by: disposeBag)
         
         viewModel.totalPrice
             .map { $0.currencyKR() }
-            .observeOn(MainScheduler.instance)
-            .bind(to: totalPrice.rx.text)
+            .asDriver(onErrorJustReturn: "")    // MainScheduler, 에러 처리
+            .drive(totalPrice.rx.text)          // bind
             .disposed(by: disposeBag)
     }
 
