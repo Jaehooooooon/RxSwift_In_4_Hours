@@ -81,20 +81,12 @@ class ViewController: UIViewController {
         setVisibleWithAnimation(activityIndicator, true)
  
         // 2. Observable로 오는 데이터 처리하는 방법
-        let disposable = downloadJson(MEMBER_LIST_URL)
-            .subscribe { event in
-                switch event {
-                case .next(let json) :
-                    DispatchQueue.main.async {
-                        self.editView.text = json
-                        self.setVisibleWithAnimation(self.activityIndicator, false)
-                    }
-
-                case .completed:
-                    break
-                case .error(_):
-                    break
-                }
-            }
+        downloadJson(MEMBER_LIST_URL)
+            .subscribeOn(ConcurrentDispatchQueueScheduler.init(qos: .default))  // 시작 스레드
+            .observeOn(MainScheduler.instance)  // 다음 줄부터 실행할 스레드
+            .subscribe(onNext: { json in
+                self.editView.text = json
+                self.setVisibleWithAnimation(self.activityIndicator, false)
+            })
     }
 }
