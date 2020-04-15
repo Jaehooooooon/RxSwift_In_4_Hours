@@ -30,8 +30,10 @@ class MenuViewController: UIViewController {
                 cell.price.text = "\(item.price)"
                 cell.count.text = "\(item.count)"
                     
-                
-        }
+                cell.onChange = { [weak self] increase in
+                    self?.viewModel.changeCount(item: item, increase: increase)
+                }
+            }
             .disposed(by: disposeBag)
         
         viewModel.itemsCount
@@ -78,7 +80,7 @@ class MenuViewController: UIViewController {
 //        performSegue(withIdentifier: "OrderViewController", sender: nil)
         
         viewModel.menuObservable.onNext([
-            Menu(name: "change", price: 1000, count: 1)
+            Menu(id: 0, name: "change", price: 1000, count: 1)
         ])
     }
     
