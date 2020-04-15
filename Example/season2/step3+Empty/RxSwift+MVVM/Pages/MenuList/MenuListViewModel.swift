@@ -29,4 +29,17 @@ class MenuListViewModel {
         
         menuObservable.onNext(menus)
     }
+    
+    func clearAllItemSelections() {
+        menuObservable
+            .map { menus in
+                return menus.map { m in
+                    Menu(name: m.name, price: m.price, count: 0)
+                }
+            }
+            .take(1)    // clear할 때마다 stream이 생성되지 않도록
+            .subscribe(onNext: {
+                self.menuObservable.onNext($0)
+            })
+    }
 }

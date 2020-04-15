@@ -29,6 +29,8 @@ class MenuViewController: UIViewController {
                 cell.title.text = item.name
                 cell.price.text = "\(item.price)"
                 cell.count.text = "\(item.count)"
+                    
+                
         }
             .disposed(by: disposeBag)
         
@@ -67,6 +69,7 @@ class MenuViewController: UIViewController {
     @IBOutlet var totalPrice: UILabel!
 
     @IBAction func onClear() {
+        viewModel.clearAllItemSelections()
     }
 
     @IBAction func onOrder(_ sender: UIButton) {
@@ -81,6 +84,7 @@ class MenuViewController: UIViewController {
     
 }
 
+// MARK: - Bind로 대체
 //extension MenuViewController: UITableViewDataSource {
 //    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 //        return viewModel.menus.count
